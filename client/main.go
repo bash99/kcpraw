@@ -132,7 +132,17 @@ func handleProxyClient(sess *smux.Session, p1 net.Conn, cfg *Config) {
 	}
 
 	var direct bool
-	ip := net.ParseIP(host)
+	var ip net.IP
+	if cfg.chnRouteCtx != nil {
+		ips, err := net.LookupIP(host)
+		if err != nil {
+		        log.Println("host lookup failed: ", host, err)
+			return
+		}
+		ip = ips[0]
+	} else {
+	    ip  = net.ParseIP(host)
+	}
 
 	if ip != nil && cfg.chnRouteCtx != nil {
 		direct = cfg.chnRouteCtx.testIP(ip)
